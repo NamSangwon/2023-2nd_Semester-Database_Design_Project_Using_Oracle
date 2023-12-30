@@ -1,0 +1,346 @@
+-- 회원 탈퇴 프로시저
+CREATE OR REPLACE PROCEDURE del_user(v_userID IN VARCHAR2)
+IS
+BEGIN
+	del_user_music_like(v_userID);
+	del_user_singer_like(v_userID);
+	del_playlists_of_user(v_userID);
+
+	DELETE FROM SERVICE_USER
+	WHERE UserID = v_userID;
+	COMMIT;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+-- 유저 삭제 -> 찜한 노래 삭제 프로시저
+CREATE OR REPLACE PROCEDURE del_user_music_like(v_userID IN VARCHAR2)
+IS
+BEGIN
+	DELETE FROM USER_MUSIC_LIKE
+	WHERE UserID = v_userID;
+	COMMIT;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+-- 유저 삭제 -> 찜한 가수 삭제 프로시저
+CREATE OR REPLACE PROCEDURE del_user_singer_like(v_userID IN VARCHAR2)
+IS
+BEGIN
+	DELETE FROM USER_SINGER_LIKE
+	WHERE UserID = v_userID;
+	COMMIT;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+-- 유저 삭제 -> 생성한 플레이리스트 삭제 프로시저
+CREATE OR REPLACE PROCEDURE del_playlists_of_user(v_userID IN VARCHAR2)
+IS
+	not_found_data EXCEPTION;
+
+	CURSOR playlist_list(v_UserID PLAYLIST.UserID%TYPE) IS
+	SELECT PlayListID
+	FROM PLAYLIST
+	WHERE UserID = v_UserID;
+
+	v_PlayListID PLAYLIST.PlayListID%TYPE;
+BEGIN
+	FOR PlaylistList IN playlist_list(v_userID) LOOP
+		del_playlist_music(PlaylistList.PlayListID);
+	END LOOP;
+
+	DELETE FROM PLAYLIST
+	WHERE UserID = v_userID;
+	COMMIT;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+EXECUTE del_user('testID1');
+SELECT * FROM SERVICE_USER WHERE UserID = 'testID1';
+SELECT * FROM USER_MUSIC_LIKE WHERE UserID = 'testID1';
+SELECT * FROM USER_SINGER_LIKE WHERE UserID = 'testID1';
+SELECT * FROM PLAYLIST WHERE UserID = 'testID1';
+SELECT * FROM PLAYLIST a, PLAYLIST_MUSIC_INT b WHERE a.UserID = 'testID1' AND a.PlayListID = b.PlayListID;
+
+
+=====================================================
+-- 플레이리스트 삭제 프로시저
+CREATE OR REPLACE PROCEDURE del_playlist(v_playlistID IN VARCHAR2)
+IS
+BEGIN
+	del_playlist_music(v_playlistID);
+
+	DELETE FROM PLAYLIST
+	WHERE PlayListID = v_playlistID;
+	COMMIT;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+-- 플레이리스트 삭제 -> 음악과의 N:M 관계 삭제 프로시저
+CREATE OR REPLACE PROCEDURE del_playlist_music(v_playlistID IN VARCHAR2)
+IS
+BEGIN
+	DELETE FROM PLAYLIST_MUSIC_INT
+	WHERE PlayListID = v_playlistID;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+EXECUTE del_playlist('PLAYLIST1');
+SELECT * FROM PLAYLIST WHERE PlayListID = 'PLAYLIST1';
+SELECT * FROM PLAYLIST_MUSIC_INT WHERE PlayListID = 'PLAYLIST1';
+
+=======================================================
+
+-- 플레이리스트 내의 음악 목록을 보여주는 프로시저
+CREATE OR REPLACE PROCEDURE show_playlist(v_PlayListID IN VARCHAR2)
+IS
+	CURSOR music_list(v_playlistID PLAYLIST.PlayListID%TYPE) IS
+	SELECT b.MusicTitle 
+	FROM PLAYLIST_MUSIC_INT a, MUSIC b 
+	WHERE PlayListID = v_playlistID AND a.MusicID = b.MusicID;
+
+	v_PlayListName PLAYLIST.PlayListName%TYPE;
+	v_MusicTitle MUSIC.MusicTitle%TYPE;
+BEGIN
+	SELECT PlayListName
+	INTO v_PlayListName
+	FROM PLAYLIST
+	WHERE PlayListID = v_PlayListID;
+
+	DBMS_OUTPUT.PUT_LINE('< ' || v_PlayListName || ' 플레이리스트 목록 >');
+	FOR musiclst IN music_list(v_PlayListID) LOOP
+		DBMS_OUTPUT.PUT_LINE(' - ' || musiclst.MusicTitle || ' ');
+	END LOOP;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+EXECUTE show_playlist('PLAYLIST2');
+
+-- 사용자가 찜한 노래 목록 보여주는 프로시저
+CREATE OR REPLACE PROCEDURE show_like_music(v_user IN VARCHAR2)
+IS
+	CURSOR music_list(v_userID USER_MUSIC_LIKE.UserID%TYPE) IS
+	SELECT b.MusicTitle 
+	FROM USER_MUSIC_LIKE a, MUSIC b 
+	WHERE UserID = v_userID AND a.MusicID = b.MusicID;
+
+	v_UserName SERVICE_USER.UserName%TYPE;
+BEGIN
+	SELECT UserName
+	INTO v_UserName
+	FROM SERVICE_USER
+	WHERE UserID = v_user;
+
+	DBMS_OUTPUT.PUT_LINE('< ' || v_UserName || '님의 찜한 노래 목록 >');
+	FOR like_music IN music_list(v_user) LOOP
+		DBMS_OUTPUT.PUT_LINE(' - ' || like_music.MusicTitle || ' ');
+	END LOOP;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+EXECUTE show_like_music('testID1');
+
+-- 사용자가 찜한 가수 목록 보여주는 프로시저
+CREATE OR REPLACE PROCEDURE show_like_singer(v_user IN VARCHAR2)
+IS
+	CURSOR singer_list(v_userID USER_MUSIC_LIKE.UserID%TYPE) IS
+	SELECT b.SingerName
+	FROM USER_SINGER_LIKE a, SINGER b 
+	WHERE UserID = v_userID AND a.SingerID = b.SingerID;
+
+	v_UserName SERVICE_USER.UserName%TYPE;
+BEGIN
+	SELECT UserName
+	INTO v_UserName
+	FROM SERVICE_USER
+	WHERE UserID = v_user;
+
+	DBMS_OUTPUT.PUT_LINE('< ' || v_UserName || '님의 찜한 가수 목록 >');
+	FOR like_singer IN singer_list(v_user) LOOP
+		DBMS_OUTPUT.PUT_LINE(' - ' || like_singer.SingerName || ' ');
+	END LOOP;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+EXECUTE show_like_singer('testID1');
+
+-- 음악 정보를 출력하는 프로시저
+CREATE OR REPLACE PROCEDURE show_music(v_musicID IN VARCHAR2)
+IS
+	CURSOR genre_list(v_MusicID MUSIC_GENRE_INT.MusicID%TYPE) IS
+	SELECT GenreName
+	FROM MUSIC_GENRE_INT
+	WHERE MusicID = v_MusicID;
+
+	CURSOR composer_list(v_MusicID MUSIC_GENRE_INT.MusicID%TYPE) IS
+	SELECT b.ComposerName
+	FROM MUSIC_COMPOSER_INT a, COMPOSER b
+	WHERE a.ComposerID = b.ComposerID AND a.MusicID = v_MusicID;
+
+	CURSOR lylicist_list(v_MusicID MUSIC_GENRE_INT.MusicID%TYPE) IS
+	SELECT b.LylicistName
+	FROM MUSIC_LYLICIST_INT a, LYLICIST b
+	WHERE a.LylicistID = b.LylicistID AND a.MusicID = v_MusicID;
+
+	v_music MUSIC%ROWTYPE;
+	v_SingerName SINGER.SingerName%TYPE;
+BEGIN
+	SELECT MusicTitle, SingerID, MusicReleaseDate
+	INTO v_music.MusicTitle, v_music.SingerID, v_music.MusicReleaseDate
+	FROM MUSIC
+	WHERE MusicID = v_musicID;
+
+	SELECT SingerName
+	INTO v_SingerName
+	FROM SINGER
+	WHERE SingerID = v_music.SingerID;
+
+	DBMS_OUTPUT.PUT_LINE('[ ' || v_music.MusicTitle || ' ]');
+	DBMS_OUTPUT.PUT('- ' || lpad('장르 : ', 16));
+	FOR GenreList IN genre_list(v_musicID) LOOP
+		DBMS_OUTPUT.PUT(GenreList.GenreName || ' ');
+	END LOOP;
+	DBMS_OUTPUT.NEW_LINE;
+	DBMS_OUTPUT.PUT('- ' || lpad('작곡가 : ', 16));
+	FOR ComposerList IN composer_list(v_musicID) LOOP
+		DBMS_OUTPUT.PUT(ComposerList.ComposerName || ' ');
+	END LOOP;
+	DBMS_OUTPUT.NEW_LINE;
+	DBMS_OUTPUT.PUT('- ' || lpad('작사가 : ', 16));
+	FOR LylicistList IN lylicist_list(v_musicID) LOOP
+		DBMS_OUTPUT.PUT(LylicistList.LylicistName || ' ');
+	END LOOP;
+	DBMS_OUTPUT.NEW_LINE;
+	DBMS_OUTPUT.PUT_LINE('- ' || lpad('가수(그룹)명: ', 16) || v_SingerName);
+	DBMS_OUTPUT.PUT_LINE('- ' || lpad('발매일 : ', 16) || v_music.MusicReleaseDate);
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+EXECUTE show_music('MUSIC1');
+
+-- 앨범 정보를 출력하는 프로시저 (음악 정보 출력 프로시저 사용)
+CREATE OR REPLACE PROCEDURE show_album(v_albumID IN VARCHAR2)
+IS
+	v_albumName ALBUM.AlbumTitle%TYPE;
+BEGIN
+	SELECT AlbumTitle
+	INTO v_albumName
+	FROM ALBUM
+	WHERE AlbumID = v_albumID;	
+
+	DBMS_OUTPUT.PUT_LINE('====== << ' || v_albumName || ' >> ======');
+	FOR music_list IN (SELECT MusicID FROM MUSIC WHERE AlbumID = v_albumID) LOOP
+		show_music(music_list.MusicID);
+		DBMS_OUTPUT.PUT_LINE('====================================');
+	END LOOP;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+EXECUTE show_album('ALBUM1');
+
+-- 가수(그룹) 정보를 출력하는 프로시저
+CREATE OR REPLACE PROCEDURE show_singer(v_singerID IN VARCHAR2)
+IS
+	CURSOR member_list(v_SingerID SINGER.SingerID%TYPE) IS
+	SELECT b.MemberName
+	FROM SINGER_MEMBER_INT a, MEMBER b
+	WHERE a.SingerID = v_SingerID AND a.MemberID = b.MemberID;
+
+	v_singer SINGER%ROWTYPE;
+BEGIN
+	
+	SELECT SingerName, SingerDebutDate
+	INTO v_singer.SingerName, v_singer.SingerDebutDate
+	FROM SINGER
+	WHERE SingerID = v_singerID;
+
+	DBMS_OUTPUT.PUT_LINE('[ ' || v_singer.SingerName|| ' ]');
+	DBMS_OUTPUT.PUT('- ' || lpad('구성원 : ', 10));
+	FOR MemberList IN member_list(v_singerID) LOOP
+		DBMS_OUTPUT.PUT(MemberList.MemberName || ' ');
+	END LOOP;
+	DBMS_OUTPUT.NEW_LINE;
+	DBMS_OUTPUT.PUT_LINE('- ' || lpad('데뷔일 : ', 10) || v_singer.SingerDebutDate);
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+EXECUTE show_singer('SINGER1');
+
+=========================================================
+
+-- 해당 가수의 인기도를 측정하기 위한 함수 (찜 당한 횟수를 통해)
+CREATE OR REPLACE FUNCTION popularity_singer
+(v_singerID IN VARCHAR2) RETURN NUMBER
+IS
+	cnt NUMBER := 0;
+BEGIN
+	SELECT COUNT(*)
+	INTO cnt
+	FROM USER_SINGER_LIKE
+	WHERE SingerID = v_singerID;
+RETURN cnt;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+VAR popularity NUMBER;
+EXECUTE :popularity := popularity_singer('SINGER2');
+print popularity;
+
+-- 해당 노래의 인기도를 측정하기 위한 함수 (찜 당한 횟수를 통해)
+CREATE OR REPLACE FUNCTION popularity_music
+(v_musicID IN VARCHAR2) RETURN NUMBER
+IS
+	cnt NUMBER := 0;
+BEGIN
+	SELECT COUNT(*)
+	INTO cnt
+	FROM USER_MUSIC_LIKE
+	WHERE MusicID = v_musicID;
+RETURN cnt;
+EXCEPTION
+	WHEN OTHERS THEN
+		DBMS_OUTPUT.PUT_LINE('ERR MESSAGE' || SQLERRM);
+END;
+/
+
+VAR popularity NUMBER;
+EXECUTE :popularity := popularity_music('MUSIC1');
+print popularity;

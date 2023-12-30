@@ -1,0 +1,167 @@
+장르 추가
+	INSERT INTO GENRE VALUES('Ballade');
+	INSERT INTO GENRE VALUES('Band');
+	INSERT INTO GENRE VALUES('Blues');
+	INSERT INTO GENRE VALUES('Classic');
+	INSERT INTO GENRE VALUES('Country');
+	INSERT INTO GENRE VALUES('Dance');
+	INSERT INTO GENRE VALUES('Pop');
+	INSERT INTO GENRE VALUES('Folk');
+	INSERT INTO GENRE VALUES('Hip-Hop');
+	INSERT INTO GENRE VALUES('Jazz');
+	INSERT INTO GENRE VALUES('Rock');
+	INSERT INTO GENRE VALUES('Reggae');
+	INSERT INTO GENRE VALUES('Rap');
+	INSERT INTO GENRE VALUES('Techno');
+	INSERT INTO GENRE VALUES('Opera');
+	INSERT INTO GENRE VALUES('Electronical');
+	INSERT INTO GENRE VALUES('Disco');
+======================================================================
+사용자 1 - testID1, testPW1, test1, test1@test.com, 2023.10.28, 23, 남성(0), (C:\Program Files\test.jpg)
+	 INSERT INTO SERVICE_USER VALUES('testID1', 'testPW1', 'test1', 'test1@test.com', '2023-10-28', 23, 0, 'C:\Program Files\test.jpg');
+
+사용자 2 - testID2, testPW2, test2, test2@test.com, 2023.10.29, 22, 여성(1), (C:\Program Files\test.jpg)
+	 INSERT INTO SERVICE_USER VALUES('testID2', 'testPW2', 'test2', 'test2@test.com', '2023.10.29', 22, '1', 'C:\Program Files\test.jpg');
+
+=====================================================================
+앨범 1- (Album ID = ALBUM1) 가을 우체국 앞에서 (1994.12.01) 
+	INSERT INTO ALBUM VALUES('ALBUM1', '가을 우체국 앞에서', '1994.12.01');
+
+음악 1-1 - (album id = ALBUM1) 너를 보내고 (1994.12.01) (music id = MUSIC1)
+	(singer id = SINGER1), (C:\Program Files\0_0.mp4)
+	장르 - band, rock, blues
+	작곡가 - 임준철, 0
+	작사가 - 이승희, 0
+		INSERT INTO MUSIC VALUES('MUSIC1', '너를 보내고', '1994.12.01', 'C:\Program Files\0_0.mp4', 'SINGER1', 'ALBUM1');
+
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC1', 'Band');
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC1', 'Rock');
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC1', 'Blues');
+
+		INSERT INTO COMPOSER VALUES('임준철', 'COMPOSER1');
+		INSERT INTO MUSIC_COMPOSER_INT VALUES('MUSIC1', 'COMPOSER1');
+
+		INSERT INTO LYLICIST VALUES('이승희', 'LYLICIST1');
+		INSERT INTO MUSIC_LYLICIST_INT VALUES('MUSIC1', 'LYLICIST1');
+	
+음악 1-2 - (album id = 0) 사랑 two (임준철 작곡, 이경희 작사 1994.12.01) (music id = 1)
+	(singer id = 0), (C:\Program Files\0_1.mp4)
+	장르 - band, rock
+	작곡가 - 임준철(0), 강호정(1)
+	작사가 - 이승희(0)
+		INSERT INTO MUSIC VALUES('MUSIC2', '사랑 two', '1994.12.01', 'C:\Program Files\0_1.mp4', 'SINGER1', 'ALBUM1');
+
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC2', 'Band');
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC2', 'Rock');
+
+		INSERT INTO MUSIC_COMPOSER_INT VALUES('MUSIC2', 'COMPOSER1');
+
+		INSERT INTO MUSIC_LYLICIST_INT VALUES('MUSIC2', 'LYLICIST1');
+
+		INSERT INTO COMPOSER VALUES('강호정', 'COMPOSER2');
+		INSERT INTO MUSIC_COMPOSER_INT VALUES('MUSIC2', 'COMPOSER2');
+
+음악 1-3 - (album id = 0) 가을 우체국 앞에서 (1994.12.01) (music id = 2)
+	(singer id = 0), (C:\Program Files\0_2.mp4)
+	장르 - band, rock, folk
+	작곡가 - 김현성(2)
+	작사가 - 김현성(1)
+		INSERT INTO MUSIC VALUES('MUSIC3', '가을 우체국 앞에서', '1994.12.01', 'C:\Program Files\0_2.mp4', 'SINGER1', 'ALBUM1');
+
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC3', 'Band');
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC3', 'Rock');
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC3', 'Folk');
+
+		INSERT INTO COMPOSER VALUES('김현성', 'COMPOSER3');
+		INSERT INTO MUSIC_COMPOSER_INT VALUES('MUSIC3', 'COMPOSER3');
+
+		INSERT INTO LYLICIST VALUES('김현성', 'LYLICIST2');
+		INSERT INTO MUSIC_LYLICIST_INT VALUES('MUSIC3', 'LYLICIST2');
+
+그룹 - (singer id = 0) YB (1994.12.01)
+	INSERT INTO SINGER VALUES('SINGER1', 'YB', '1994.12.01');
+
+가수 	- (member id = 0) 윤도현, 1972.02.03, 남성, 51
+	- (member id = 1) 박태희, 1969.09.19, 남성, 53
+	- (member id = 2) 김진원, 1970.02.23, 남성, 53
+	- (member id = 3) 허준, 1974.09.17, 남성, 49
+	- (member id = 4) Scott, 1977.02.19, 남성, 46
+		INSERT INTO MEMBER VALUES('MEMBER1', '윤도현', '1972.02.03', 0, 51);
+		INSERT INTO MEMBER VALUES('MEMBER2', '박태희', '1969.09.19', 0, 53);
+		INSERT INTO MEMBER VALUES('MEMBER3', '김진원', '1970.02.23', 0, 53);
+		INSERT INTO MEMBER VALUES('MEMBER4', '허준', '1974.09.17', 0, 49);
+		INSERT INTO MEMBER VALUES('MEMBER5', 'Scott', '1977.02.19', 0, 46);
+		INSERT INTO SINGER_MEMBER_INT VALUES('SINGER1', 'MEMBER1');
+		INSERT INTO SINGER_MEMBER_INT VALUES('SINGER1', 'MEMBER2');
+		INSERT INTO SINGER_MEMBER_INT VALUES('SINGER1', 'MEMBER3');
+		INSERT INTO SINGER_MEMBER_INT VALUES('SINGER1', 'MEMBER4');
+		INSERT INTO SINGER_MEMBER_INT VALUES('SINGER1', 'MEMBER5');
+
+=====================================================================
+앨범 1- (Album ID = 1) Goodbye, grief.  (2013.10.14) 
+		INSERT INTO ALBUM VALUES('ALBUM2', 'Goodbye, grief.', '2013.10.14');
+
+음악 1-1 - (album id = 1) 스물다섯, 스물하나 (2013.10.14) (music id = 3)
+	(singer id = 1), (C:\Program Files\1_3.mp4)
+	장르 - band, rock, ballade
+	작곡가 - 김윤아(3)
+	작사가 - 김윤아(2)
+		INSERT INTO MUSIC VALUES('MUSIC4', '스물다섯, 스물하나', '2013.10.14', 'C:\Program Files\1_3.mp4', 'SINGER2', 'ALBUM2');
+
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC4', 'Band');
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC4', 'Ballade');
+		INSERT INTO MUSIC_GENRE_INT VALUES('MUSIC4', 'Rock');
+
+		INSERT INTO COMPOSER VALUES('김윤아', 'COMPOSER4');
+		INSERT INTO MUSIC_COMPOSER_INT VALUES('MUSIC4', 'COMPOSER4');
+
+		INSERT INTO LYLICIST VALUES('김윤아', 'LYLICIST3');
+		INSERT INTO MUSIC_LYLICIST_INT VALUES('MUSIC4', 'LYLICIST3');
+
+그룹 - (singer id = 1) 자우림 (1997.11.22)
+	INSERT INTO SINGER VALUES('SINGER2', '자우림', '1997.11.22');
+
+가수 	- (member id = 5) 이선규, 1971.08.28, 남성, 52
+	- (member id = 6) 김진만, 1972.02.25, 남성, 51
+	- (member id = 7) 김윤아, 1974.03.11, 여성, 49
+		INSERT INTO MEMBER VALUES('MEMBER6', '이선규', '1971.08.28', 0, 52);
+		INSERT INTO MEMBER VALUES('MEMBER7', '김진만', '1972.02.25', 0, 51);
+		INSERT INTO MEMBER VALUES('MEMBER8', '김윤아', '1974.03.11', 1, 49);
+		INSERT INTO SINGER_MEMBER_INT VALUES('SINGER1', 'MEMBER6');
+		INSERT INTO SINGER_MEMBER_INT VALUES('SINGER1', 'MEMBER7');
+		INSERT INTO SINGER_MEMBER_INT VALUES('SINGER1', 'MEMBER8');
+
+=====================================================================
+사용자 1 플레이 리스트 - (PLID = 0) 밴드 노래 모음, 2023.10.29, Open, 사용자 1
+	INSERT INTO PLAYLIST VALUES('PLAYLIST1', '밴드 노래 모음', '2023.10.29', 1, 'testID1');
+	INSERT INTO PLAYLIST_MUSIC_INT VALUES('PLAYLIST1', 'MUSIC1');
+	INSERT INTO PLAYLIST_MUSIC_INT VALUES('PLAYLIST1', 'MUSIC2');
+	INSERT INTO PLAYLIST_MUSIC_INT VALUES('PLAYLIST1', 'MUSIC3');
+	INSERT INTO PLAYLIST_MUSIC_INT VALUES('PLAYLIST1', 'MUSIC4');
+
+사용자 1 플레이 리스트 - (PLID = 1) YB 노래 모음, 2023.10.28, Not Open, 사용자 1
+	INSERT INTO PLAYLIST VALUES('PLAYLIST2', 'YB 노래 모음', '2023.10.28', 0, 'testID1');
+	INSERT INTO PLAYLIST_MUSIC_INT VALUES('PLAYLIST2', 'MUSIC1');
+	INSERT INTO PLAYLIST_MUSIC_INT VALUES('PLAYLIST2', 'MUSIC2');
+	INSERT INTO PLAYLIST_MUSIC_INT VALUES('PLAYLIST2', 'MUSIC3');
+
+사용자 2 플레이 리스트 - (PLID = 2) 자우림 노래 모음, 2023.10.28, Open, 사용자 2
+	INSERT INTO PLAYLIST VALUES('PLAYLIST3', '자우 노래 모음', '2023.10.28', 0, 'testID2');
+	INSERT INTO PLAYLIST_MUSIC_INT VALUES('PLAYLIST3', 'MUSIC4');
+
+=====================================================================
+사용자 1 좋아요한 노래 - 너를 보내고, 사랑 two, 스물다섯, 스물하나
+	INSERT INTO USER_MUSIC_LIKE VALUES('testID1', 'MUSIC1');
+	INSERT INTO USER_MUSIC_LIKE VALUES('testID1', 'MUSIC2');
+	INSERT INTO USER_MUSIC_LIKE VALUES('testID1', 'MUSIC4');
+
+사용자 1 좋아요한 가수 - YB, 자우림
+	INSERT INTO USER_SINGER_LIKE VALUES('testID1', 'SINGER1');
+	INSERT INTO USER_SINGER_LIKE VALUES('testID1', 'SINGER2');
+
+사용자 2 좋아요한 노래 - 가을 우체국 앞에서, 스물다섯, 스물하나
+	INSERT INTO USER_MUSIC_LIKE VALUES('testID2', 'MUSIC3');
+	INSERT INTO USER_MUSIC_LIKE VALUES('testID2', 'MUSIC4');
+
+사용자 2 좋아요한 가수 - 자우림
+	INSERT INTO USER_SINGER_LIKE VALUES('testID2', 'SINGER2');
